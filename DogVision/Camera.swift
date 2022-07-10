@@ -40,7 +40,11 @@ class Camera: ObservableObject {
         }
     }
     
-    private func configure_capture_session () -> Bool {
+    private func configure_capture_session () {
+        if (self.av_configured) {
+            return
+        }
+            
         av_session.beginConfiguration()
         defer {
             av_session.commitConfiguration()
@@ -52,7 +56,7 @@ class Camera: ObservableObject {
             DispatchQueue.main.async {
                 self.err_str = "Triple Camera is not available"
             }
-            return false
+            return
         }
 
         /* now build the "camera feed" pipeline - input from camera, output to phone screen */
@@ -64,13 +68,13 @@ class Camera: ObservableObject {
                 DispatchQueue.main.async {
                     self.err_str = "Unable to add Camera Input"
                 }
-                return false
+                return
             }
         } catch {
             DispatchQueue.main.async {
               self.err_str = "Failed to set camera capture"
             }
-                return false
+                return
         }
             
         if (av_session.canAddOutput(video_output)) {
@@ -83,14 +87,17 @@ class Camera: ObservableObject {
             DispatchQueue.main.async {
                 self.err_str = "Unable to add Video Output device to session"
             }
-            return false
+            return
         }
-        return true
+        self.av_configured = true
     }
-        
-        
     
-
+    func set(_ delegate: AVCaptureVideoDataOutputSampleBufferDelegate, queue: DispatchQueue) {
+        pvt_queue.async {
+            self.video_output.setSampleBufferDelegate(delegate, queue: queue)
+        }
+    }
+    
     private init () {
         online = false
         test_and_ask_permissions()
@@ -100,8 +107,10 @@ class Camera: ObservableObject {
                 self.err_str = "could not initialize camera. check perms"
             }
         }
-        if (!av_configured && configure_capture_session()) {
-            av_configured = true
+        
+        pvt_queue.async {
+            self.configure_capture_session()
+            self.av_session.startRunning()
         }
     }
 }
