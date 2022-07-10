@@ -51,7 +51,7 @@ class Camera: ObservableObject {
         }
         
         /* grab the fancy triple camera */
-        let device = AVCaptureDevice.default(.builtInTripleCamera, for: .video, position: .back)
+        let device = AVCaptureDevice.default(.builtInDualCamera, for: .video, position: .back)
         guard let cam = device else {
             DispatchQueue.main.async {
                 self.err_str = "Triple Camera is not available"
