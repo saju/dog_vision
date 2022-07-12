@@ -40,6 +40,27 @@ extension Screen: AVCaptureVideoDataOutputSampleBufferDelegate {
   }
 }
 
+class DogFilter: CIFilter {
+  private let kernel: CIColorKernel
+  
+  var inputImage: CIImage?
+  
+  override init() {
+    let url = Bundle.main.url(forResource: "default", withExtension: "metallib")!
+    let data = try! Data(contentsOf: url)
+    kernel = try! CIColorKernel(functionName: "dog_eyes", fromMetalLibraryData: data)
+    super.init()
+  }
+  
+  required init?(coder aDecoder: NSCoder) {
+          fatalError("init(coder:) has not been implemented")
+  }
+  
+  func outputImage() -> CIImage? {
+    guard let inputImage = inputImage else {return nil}
+    return kernel.apply(extent: inputImage.extent, arguments: [inputImage])
+  }
+}
 
 class Display: ObservableObject {
     @Published var current_frame: CGImage?
@@ -73,15 +94,9 @@ class Display: ObservableObject {
                 
                 if (self.dog_vision) {
                     var ci_image = CIImage(cgImage: image)
-                    let colorPolynomialParams : [String : AnyObject]
-                                = [kCIInputImageKey: ci_image,
-                                   "inputRedCoefficients" : CIVector(x: 0.0, y: 0.0, z: 0.0, w: 0.0),
-                                   "inputGreenCoefficients" : CIVector(x: 0.0, y: 1.0, z: 0.0, w: 0.0),
-                                   "inputBlueCoefficients" : CIVector(x: 0.0, y: 1.0, z: 0.0, w: 0.0),
-                                   "inputAlphaCoefficients" : CIVector(x: 0.0, y: 1.0, z: 0.0, w: 0.0)]
-
-                    let colorPolynomial = CIFilter(name: "CIColorPolynomial", parameters: colorPolynomialParams);
-                    ci_image = colorPolynomial?.outputImage ?? ci_image
+                    let filter = DogFilter()
+                    filter.inputImage = ci_image
+                    ci_image = filter.outputImage() ?? ci_image
                     return self.context.createCGImage(ci_image, from: ci_image.extent)
                 } else {
                     return image

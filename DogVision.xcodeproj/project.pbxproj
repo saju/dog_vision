@@ -12,6 +12,7 @@
 		A213ACBE287A637500859B03 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A213ACBD287A637500859B03 /* Preview Assets.xcassets */; };
 		A213ACC7287A6CFF00859B03 /* Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = A213ACC6287A6CFF00859B03 /* Display.swift */; };
 		A213ACC9287A708400859B03 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = A213ACC8287A708400859B03 /* Camera.swift */; };
+		A2446249287D17150069EC12 /* dog_vision.metal in Sources */ = {isa = PBXBuildFile; fileRef = A2446248287D17150069EC12 /* dog_vision.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		A213ACBD287A637500859B03 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A213ACC6287A6CFF00859B03 /* Display.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Display.swift; sourceTree = "<group>"; };
 		A213ACC8287A708400859B03 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
+		A2446248287D17150069EC12 /* dog_vision.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = dog_vision.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +55,7 @@
 		A213ACB5287A637300859B03 /* DogVision */ = {
 			isa = PBXGroup;
 			children = (
+				A2446248287D17150069EC12 /* dog_vision.metal */,
 				A213ACB6287A637300859B03 /* Dog_VisionApp.swift */,
 				A213ACC6287A6CFF00859B03 /* Display.swift */,
 				A213ACC8287A708400859B03 /* Camera.swift */,
@@ -142,6 +145,7 @@
 			files = (
 				A213ACC7287A6CFF00859B03 /* Display.swift in Sources */,
 				A213ACB7287A637300859B03 /* Dog_VisionApp.swift in Sources */,
+				A2446249287D17150069EC12 /* dog_vision.metal in Sources */,
 				A213ACC9287A708400859B03 /* Camera.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -285,6 +289,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				MTLLINKER_FLAGS = "-cikernel";
+				MTL_COMPILER_FLAGS = "-fcikernel";
+				NEW_SETTING = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.srp.umwelt.Dog-Vision";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -315,6 +322,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				MTLLINKER_FLAGS = "-cikernel";
+				MTL_COMPILER_FLAGS = "-fcikernel";
+				NEW_SETTING = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.srp.umwelt.Dog-Vision";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
