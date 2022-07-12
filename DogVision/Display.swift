@@ -10,25 +10,7 @@ import AVFoundation
 import CoreGraphics
 import VideoToolbox
 
-struct ErrorView: View {
-  var err_str: String?
 
-  var body: some View {
-    VStack {
-        Text(err_str ?? "")
-        .bold()
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: .infinity)
-        .padding(8)
-        .foregroundColor(.white)
-        .background(Color.red.edgesIgnoringSafeArea(.top))
-        .opacity(err_str == nil ? 0.0 : 1.0)
-        .animation(.easeInOut, value: 0.25)
-
-      Spacer()
-    }
-  }
-}
 
 class Screen: NSObject, ObservableObject {
     static let singleton = Screen()
@@ -62,10 +44,12 @@ extension Screen: AVCaptureVideoDataOutputSampleBufferDelegate {
 class Display: ObservableObject {
     @Published var current_frame: CGImage?
     @Published var err_str: String?
+    var dog_vision = false
     
     private let camera = Camera.singleton;
     private let screen = Screen.singleton;
     
+    private let context = CIContext()
     
     init() {
         /* listen for error messages dispatched from the Camera and display them */
@@ -79,11 +63,30 @@ class Display: ObservableObject {
             .receive(on: RunLoop.main)
             .compactMap { $0 }
             .compactMap { buffer in
-                var cgimage: CGImage?
+                var cg_image: CGImage?
 
                 
-                VTCreateCGImageFromCVPixelBuffer(buffer, options: nil, imageOut: &cgimage)
-                return cgimage;
+                VTCreateCGImageFromCVPixelBuffer(buffer, options: nil, imageOut: &cg_image)
+                guard let image:CGImage = cg_image else {
+                    return nil
+                }
+                
+                if (self.dog_vision) {
+                    var ci_image = CIImage(cgImage: image)
+                    let colorPolynomialParams : [String : AnyObject]
+                                = [kCIInputImageKey: ci_image,
+                                   "inputRedCoefficients" : CIVector(x: 0.0, y: 0.0, z: 0.0, w: 0.0),
+                                   "inputGreenCoefficients" : CIVector(x: 0.0, y: 1.0, z: 0.0, w: 0.0),
+                                   "inputBlueCoefficients" : CIVector(x: 0.0, y: 1.0, z: 0.0, w: 0.0),
+                                   "inputAlphaCoefficients" : CIVector(x: 0.0, y: 1.0, z: 0.0, w: 0.0)]
+
+                    let colorPolynomial = CIFilter(name: "CIColorPolynomial", parameters: colorPolynomialParams);
+                    ci_image = colorPolynomial?.outputImage ?? ci_image
+                    return self.context.createCGImage(ci_image, from: ci_image.extent)
+                } else {
+                    return image
+                }
+                
             }
             .assign(to: &$current_frame)
     }
